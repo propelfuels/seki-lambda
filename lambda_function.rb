@@ -43,8 +43,8 @@ def parse_event(e)
   t = e.dig('identitySource', 0)
   id = e.dig('requestContext', 'apiId')
   m = e.dig('requestContext', 'http', 'method')
-  ip = e.dig('requestContext', 'http', 'sourceIp')
   m.downcase! if m.class == String
+  ip = e.dig('requestContext', 'http', 'sourceIp')
   if t.class == String
     ta = t.split(nil, 2)
     case ta.length
@@ -53,7 +53,11 @@ def parse_event(e)
     when 1
       t = ta[0]
     when 2
-      t = ta[1] if ta[0] == 'Bearer'
+      if ta[0] == 'Basic' || ta[0] == 'Bearer'
+        t = ta[1]
+      else
+        t = nil
+      end
     end
   end
   [t, id, r, m, ip]
